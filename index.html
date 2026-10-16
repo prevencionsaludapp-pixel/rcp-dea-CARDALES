@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCP + DEA Cardales | Evaluación</title>
+    <!-- Fuentes y Librerías -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary-cyan: #00BCD4;
+            --dark-cyan: #00838F;
+            --light-cyan: #E0F7FA;
+            --accent-color: #00acc1;
+            --bg-color: #F4FBFC;
+            --card-bg: #FFFFFF;
+            --text-main: #263238;
+            --text-muted: #546E7A;
+            --success: #2E7D32;
+            --error: #C62828;
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 15px;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 24px rgba(0, 188, 212, 0.12);
+            padding: 24px;
+            margin-top: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 188, 212, 0.2);
+        }
+
+        /* Header */
+        .app-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .app-header h1 {
+            color: var(--dark-cyan);
+            font-size: 1.7rem;
+            margin-bottom: 5px;
+        }
+
+        .app-header p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Cadena de Supervivencia */
+        .survival-chain {
+            display: flex;
+            justify-content: space-between;
+            background: var(--light-cyan);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 15px 0;
+            gap: 6px;
+        }
+
+        .chain-step {
+            flex: 1;
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--dark-cyan);
+            background: white;
+            padding: 8px 4px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chain-step span {
+            font-size: 1.1rem;
+            margin-bottom: 2px;
+        }
+
+        /* Formularios */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #B2EBF2;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s;
+            background: #FAFEFF;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.15);
+        }
+
+        .notice-box {
+            background: #E0F7FA;
+            border-left: 4px solid var(--primary-cyan);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--dark-cyan);
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary-cyan), var(--dark-cyan));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 188, 212, 0.3);
+            transition: transform 0.2s, opacity 0.2s;
+            text-align: center;
+        }
+
+        .btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        /* Quiz UI */
+        .quiz-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: var(--light-cyan);
+            padding: 10px 15px;
+            border-radius: 12px;
+        }
+
+        .timer { color: var(--error); }
+
+        .question-title {
+            font-size: 1.1rem;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background: #FFFFFF;
+            border: 2px solid #B2EBF2;
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            text-align: left;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-main);
+        }
+
+        .option-btn.correct {
+            background: #E8F5E9 !important;
+            border-color: var(--success) !important;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .option-btn.incorrect {
+            background: #FFEBEE !important;
+            border-color: var(--error) !important;
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .feedback-msg {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .feedback-msg.correct { background: #E8F5E9; color: var(--success); }
+        .feedback-msg.incorrect { background: #FFEBEE; color: var(--error); }
+
+        /* Podios */
+        .podium-container {
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .podium-container h3 {
+            font-size: 1.05rem;
+            color: var(--dark-cyan);
+            margin-bottom: 10px;
+            border-bottom: 2px solid var(--light-cyan);
+            padding-bottom: 5px;
+        }
+
+        .podium-list, .all-players-list {
+            list-style: none;
+            max-height: 180px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #E0F7FA;
+            border-radius: 12px;
+            padding: 8px;
+        }
+
+        .podium-item, .player-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-bottom: 1px solid #F0F4F8;
+            font-size: 0.88rem;
+        }
+
+        .podium-1 { background: #FFFDE7; font-weight: bold; border-left: 4px solid #FBC02D; }
+        .podium-2 { background: #FAFAFA; font-weight: bold; border-left: 4px solid #9E9E9E; }
+        .podium-3 { background: #FBE9E7; font-weight: bold; border-left: 4px solid #D84315; }
+
+        .loader {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid rgba(0, 131, 143, .3);
+            border-radius: 50%;
+            border-top-color: var(--dark-cyan);
+            animation: spin 0.8s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- VISTA 1: INICIO Y PODIO EN VIVO -->
+        <div id="view-welcome">
+            <div class="app-header">
+                <h1>RCP + DEA CARDALES</h1>
+                <p>Evaluación Oficial de Protocolo VASA</p>
+            </div>
+
+            <div class="survival-chain">
+                <div class="chain-step"><span>📞</span>Reconoc. y Alerta</div>
+                <div class="chain-step"><span>💓</span>RCP Temprana</div>
+                <div class="chain-step"><span>⚡</span>Desfibrilación (DEA)</div>
+                <div class="chain-step"><span>🚑</span>Soporte Avanzado</div>
+            </div>
+
+            <!-- PODIO INICIAL -->
+            <div class="podium-container" style="margin-top: 10px; margin-bottom: 20px;">
+                <h3>🏆 Podio General en Vivo (Top 3)</h3>
+                <ul class="podium-list" id="start-podium-list">
+                    <li class="podium-item"><span class="loader"></span> Cargando podio...</li>
+                </ul>
+
+                <h3>📋 Últimos Participantes</h3>
+                <ul class="all-players-list" id="start-players-list">
+                    <li class="player-item"><span class="loader"></span> Cargando registros...</li>
+                </ul>
+            </div>
+
+            <div class="notice-box">
+                ℹ️ <strong>Atención:</strong> Se evaluarán los conocimientos en el protocolo de <strong>VASA para RCP Y MANEJO DE DEA - CARDALES</strong>. Tienes un límite de <strong>600 segundos</strong> para completar el test.
+            </div>
+
+            <form id="form-registration" onsubmit="startQuiz(event)">
+                <div class="form-group">
+                    <label for="participant-name">Nombre y Apellido:</label>
+                    <input type="text" id="participant-name" required placeholder="Ej. Juan Pérez">
+                </div>
+
+                <div class="form-group">
+                    <label for="participant-sector">Sector:</label>
+                    <select id="participant-sector" required>
+                        <option value="" disabled selected>Selecciona tu sector...</option>
+                        <option value="administración">administración</option>
+                        <option value="almacen general">almacen general</option>
+                        <option value="compras">compras</option>
+                        <option value="contralor">contralor</option>
+                        <option value="control de calidad">control de calidad</option>
+                        <option value="corte">corte</option>
+                        <option value="descarga">descarga</option>
+                        <option value="espejo">espejo</option>
+                        <option value="finanzas">finanzas</option>
+                        <option value="hvf">hvf</option>
+                        <option value="hvt">hvt</option>
+                        <option value="it">it</option>
+                        <option value="laboratorio">laboratorio</option>
+                        <option value="laminado estándar">laminado estándar</option>
+                        <option value="laminado jumbo">laminado jumbo</option>
+                        <option value="mantenimiento">mantenimiento</option>
+                        <option value="mantenimientoHVF">mantenimientoHVF</option>
+                        <option value="mass">mass</option>
+                        <option value="pcp">pcp</option>
+                        <option value="prime">prime</option>
+                        <option value="procesados">procesados</option>
+                        <option value="rrhh">rrhh</option>
+                        <option value="sertec">sertec</option>
+                        <option value="servicio medico">servicio medico</option>
+                        <option value="sgi">sgi</option>
+                        <option value="srf">srf</option>
+                        <option value="srt">srt</option>
+                        <option value="ventas exportación">ventas exportación</option>
+                        <option value="ventas local">ventas local</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="participant-instructor">Instructor:</label>
+                    <select id="participant-instructor" required>
+                        <option value="" disabled selected>Selecciona tu instructor...</option>
+                        <option value="Diana">Diana</option>
+                        <option value="Maribel">Maribel</option>
+                        <option value="Natalia">Natalia</option>
+                        <option value="Yesica">Yesica</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn">Comenzar Evaluación</button>
+            </form>
+        </div>
+
+        <!-- VISTA 2: QUIZ -->
+        <div id="view-quiz" class="hidden">
+            <div class="quiz-meta">
+                <span id="question-counter">Pregunta 1 de 10</span>
+                <span class="timer">⏱️ <span id="time-left">600</span>s</span>
+            </div>
+
+            <div class="question-title" id="question-text">Texto de la pregunta...</div>
+            <div class="options-list" id="options-container"></div>
+            <div id="feedback-box" class="feedback-msg"></div>
+
+            <button id="next-btn" class="btn hidden" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+
+        <!-- VISTA 3: RESULTADOS Y PODIO FINAL -->
+        <div id="view-results" class="hidden" style="text-align: center;">
+            <div class="app-header">
+                <h1>¡Evaluación Finalizada!</h1>
+                <p id="participant-summary-text">Resultado de tu examen</p>
+            </div>
+
+            <div style="font-size: 2.5rem; font-weight: 700; color: var(--dark-cyan); margin: 10px 0;" id="final-score-text">0 / 10</div>
+            <p style="color: var(--text-muted); margin-bottom: 20px;" id="time-spent-text">Tiempo empleado: 0s</p>
+
+            <div id="sync-status" style="font-size: 0.85rem; color: var(--dark-cyan); margin-bottom: 15px;">
+                <span class="loader"></span> Sincronizando con Google Sheets...
+            </div>
+
+            <div class="podium-container">
+                <h3>🏆 Podio Actualizado (Top 3)</h3>
+                <ul class="podium-list" id="end-podium-list">
+                    <li class="podium-item">Cargando podio...</li>
+                </ul>
+
+                <h3>📋 Historial de Participantes</h3>
+                <ul class="all-players-list" id="end-players-list">
+                    <li class="player-item">Cargando registros...</li>
+                </ul>
+            </div>
+
+            <button class="btn" onclick="location.reload()" style="margin-top: 15px;">Volver a Jugar / Nuevo Registro</button>
+        </div>
+    </div>
+
+    <script>
+        // URL de Google Apps Script actualizada
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxiIh22A7uTuRGLB1Mb1or-mseiv-uS6QmeHbOaDcQsLwjyJBMwkEmYaDOe3RItiqr/exec";
+
+        const quizData = [
+            { question: "1. Según el protocolo de vasa que es lo primero ante un evento de parada cardiaca:", options: ["Evaluar la escena", "Evaluar el estado de conciencia", "Llamar a servicio medico"], correct: 0 },
+            { question: "2. Qué debemos tener en cuenta para confirmar una parada cardiaca y activar el protocolo ALERTA DEA:", options: ["El dolor torácico persistente", "Las 2 r negativas (no responde, no respira)", "Que no esté consciente."], correct: 1 },
+            { question: "3. ¿Cuánto tiempo debemos observar el tórax para confirmar que está en parada cardiorrespiratoria?", options: ["ENTRE 5 A 10 SEG", "Hasta 3 segundos", "Mas de 10 segundos"], correct: 0 },
+            { question: "4. Cuál es la palabra clave que debemos mencionar al llamar a emergencia para activar el protocolo:", options: ["Código rojo", "Alerta DEA", "Parada cardiaca"], correct: 1 },
+            { question: "5. Cuántas compresiones deben darse por minuto:", options: ["De 30 a 60", "De 60 a 90", "DE 100 A 120"], correct: 2 },
+            { question: "6. Cuánto debe comprimirse el pecho:", options: ["3 cm", "6 cm", "10 cm"], correct: 1 },
+            { question: "7. Cuál es el número al que debo llamar a servicio médico:", options: ["107", "5142", "11"], correct: 2 },
+            { question: "8. ¿Cuándo me traen el DEA que es lo primero que debo hacer?", options: ["Encenderlo", "Esperar a servicio medico", "Colocar los parches"], correct: 0 },
+            { question: "9. Quiénes pueden manipular los desfibriladores:", options: ["Servicio medico", "Brigadistas", "Cualquier persona"], correct: 2 },
+            { question: "10. Si me encuentro solo ante una víctima de parada cardiaca lo primero que debo hacer es:", options: ["Iniciar RCP inmediatamente", "Solicitar ayuda", "Buscar el DEA"], correct: 1 }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 600;
+        let timerInterval = null;
+        let participantData = { name: "", sector: "", instructor: "" };
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.4);
+            } else {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                osc.frequency.setValueAtTime(120, audioCtx.currentTime + 0.15);
+                gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.35);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchLeaderboard();
+        });
+
+        function startQuiz(e) {
+            e.preventDefault();
+            participantData.name = document.getElementById('participant-name').value.trim();
+            participantData.sector = document.getElementById('participant-sector').value;
+            participantData.instructor = document.getElementById('participant-instructor').value;
+
+            document.getElementById('view-welcome').classList.add('hidden');
+            document.getElementById('view-quiz').classList.remove('hidden');
+
+            startTimer();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time-left').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        function loadQuestion() {
+            const q = quizData[currentQuestionIndex];
+            document.getElementById('question-counter').textContent = `Pregunta ${currentQuestionIndex + 1} de ${quizData.length}`;
+            document.getElementById('question-text').textContent = q.question;
+            
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+            
+            document.getElementById('feedback-box').style.display = 'none';
+            document.getElementById('next-btn').classList.add('hidden');
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => selectOption(idx);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function selectOption(selectedIndex) {
+            const q = quizData[currentQuestionIndex];
+            const optionButtons = document.querySelectorAll('.option-btn');
+            const feedbackBox = document.getElementById('feedback-box');
+
+            optionButtons.forEach(btn => btn.disabled = true);
+
+            const isCorrect = selectedIndex === q.correct;
+            
+            if (isCorrect) {
+                score++;
+                playSound('correct');
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
+                optionButtons[selectedIndex].classList.add('correct');
+                feedbackBox.textContent = "¡Correcto! Excelente respuesta.";
+                feedbackBox.className = "feedback-msg correct";
+            } else {
+                playSound('error');
+                optionButtons[selectedIndex].classList.add('incorrect');
+                optionButtons[q.correct].classList.add('correct');
+                feedbackBox.textContent = `Incorrecto. La respuesta correcta era: "${q.options[q.correct]}"`;
+                feedbackBox.className = "feedback-msg incorrect";
+            }
+
+            feedbackBox.style.display = 'block';
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < quizData.length) {
+                loadQuestion();
+            } else {
+                clearInterval(timerInterval);
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('view-quiz').classList.add('hidden');
+            document.getElementById('view-results').classList.remove('hidden');
+
+            const totalSecondsSpent = 600 - timeLeft;
+            document.getElementById('final-score-text').textContent = `${score} / ${quizData.length}`;
+            document.getElementById('participant-summary-text').textContent = `${participantData.name} (${participantData.sector})`;
+            document.getElementById('time-spent-text').textContent = `Tiempo empleado: ${totalSecondsSpent} segundos`;
+
+            if (score >= 7) {
+                confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+
+            sendDataToSheet(totalSecondsSpent);
+        }
+
+        function sendDataToSheet(timeSpent) {
+            const payload = {
+                nombre: participantData.name,
+                sector: participantData.sector,
+                instructor: participantData.instructor,
+                puntaje: score,
+                tiempo: timeSpent,
+                fecha: new Date().toLocaleString()
+            };
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                setTimeout(fetchLeaderboard, 1200);
+            }).catch(err => {
+                console.error("Error guardando datos:", err);
+                fetchLeaderboard();
+            });
+        }
+
+        function fetchLeaderboard() {
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    const syncStatus = document.getElementById('sync-status');
+                    if (syncStatus) syncStatus.classList.add('hidden');
+                    renderLeaderboard(data);
+                })
+                .catch(err => {
+                    console.warn("No se pudo leer la hoja en línea.", err);
+                    const syncStatus = document.getElementById('sync-status');
+                    if (syncStatus) syncStatus.classList.add('hidden');
+                    
+                    if (participantData.name) {
+                        renderLeaderboard([{
+                            nombre: participantData.name,
+                            sector: participantData.sector,
+                            puntaje: score,
+                            tiempo: 600 - timeLeft
+                        }]);
+                    }
+                });
+        }
+
+        function renderLeaderboard(players) {
+            if (!Array.isArray(players) || players.length === 0) return;
+
+            players.sort((a, b) => b.puntaje - a.puntaje || a.tiempo - b.tiempo);
+
+            const podiumContainers = [
+                { list: document.getElementById('start-podium-list'), all: document.getElementById('start-players-list') },
+                { list: document.getElementById('end-podium-list'), all: document.getElementById('end-players-list') }
+            ];
+
+            podiumContainers.forEach(target => {
+                if (!target.list || !target.all) return;
+                
+                target.list.innerHTML = '';
+                target.all.innerHTML = '';
+
+                players.forEach((p, idx) => {
+                    const itemHTML = `<span><strong>#${idx + 1}</strong> ${p.nombre} (${p.sector})</span> <span>⭐ ${p.puntaje}/10 (${p.tiempo}s)</span>`;
+                    
+                    if (idx < 3) {
+                        const li = document.createElement('li');
+                        li.className = `podium-item podium-${idx + 1}`;
+                        li.innerHTML = itemHTML;
+                        target.list.appendChild(li);
+                    }
+
+                    const liAll = document.createElement('li');
+                    liAll.className = 'player-item';
+                    liAll.innerHTML = `<span>${p.nombre} - <em>${p.sector}</em></span> <span>${p.puntaje}/10</span>`;
+                    target.all.appendChild(liAll);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
